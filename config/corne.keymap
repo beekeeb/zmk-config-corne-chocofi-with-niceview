@@ -7,50 +7,257 @@
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/pointing.h> 
 
 / {
-        keymap {
-                compatible = "zmk,keymap";
-
-                default_layer {
-// -----------------------------------------------------------------------------------------
-// |  TAB |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U   |  I  |  O  |  P  | BKSP |
-// | CTRL |  A  |  S  |  D  |  F  |  G  |   |  H  |  J   |  K  |  L  |  ;  |  '   |
-// | SHFT |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M   |  ,  |  .  |  /  | ESC  |
-//                    | GUI | LWR | SPC |   | ENT | RSE  | ALT |
-                        bindings = <
-   &kp TAB   &kp Q &kp W &kp E &kp R &kp T   &kp Y &kp U  &kp I     &kp O   &kp P    &kp BSPC
-   &kp LCTRL &kp A &kp S &kp D &kp F &kp G   &kp H &kp J  &kp K     &kp L   &kp SEMI &kp SQT
-   &kp LSHFT &kp Z &kp X &kp C &kp V &kp B   &kp N &kp M  &kp COMMA &kp DOT &kp FSLH &kp ESC
-                  &kp LGUI &mo 1 &kp SPACE   &kp RET &mo 2 &kp RALT
-                        >;
-                };
-                lower_layer {
-// -----------------------------------------------------------------------------------------
-// |  TAB |  1  |  2  |  3  |  4  |  5  |   |  6  |  7  |  8  |  9  |  0  | BKSP |
-// | BTCLR| BT1 | BT2 | BT3 | BT4 | BT5 |   | LFT | DWN |  UP | RGT |     |      |
-// | SHFT |     |     |     |     |     |   |     |     |     |     |     |      |
-//                    | GUI |     | SPC |   | ENT |     | ALT |
-                        bindings = <
-   &kp TAB    &kp N1       &kp N2       &kp N3       &kp N4       &kp N5         &kp N6   &kp N7   &kp N8 &kp N9    &kp N0 &kp BSPC
-   &bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4   &kp LEFT &kp DOWN &kp UP &kp RIGHT &trans &trans
-   &kp LSHFT  &trans       &trans       &trans       &trans       &trans         &trans   &trans   &trans &trans    &trans &trans
-                          	        &kp LGUI     &trans       &kp SPACE      &kp RET  &trans   &kp RALT
-                        >;
-                };
-
-                raise_layer {
-// -----------------------------------------------------------------------------------------
-// |  TAB |  !  |  @  |  #  |  $  |  %  |   |  ^  |  &  |  *  |  (  |  )  | BKSP |
-// | CTRL |     |     |     |     |     |   |  -  |  =  |  [  |  ]  |  \  |  `   |
-// | SHFT |     |     |     |     |     |   |  _  |  +  |  {  |  }  | "|" |  ~   |
-//                    | GUI |     | SPC |   | ENT |     | ALT |
-                        bindings = <
-   &kp  TAB  &kp EXCL &kp AT &kp HASH &kp DLLR &kp PRCNT   &kp CARET &kp AMPS  &kp KP_MULTIPLY &kp LPAR &kp RPAR &kp BSPC
-   &kp LCTRL &trans   &trans &trans   &trans   &trans      &kp MINUS &kp EQUAL &kp LBKT        &kp RBKT &kp BSLH &kp GRAVE
-   &kp LSHFT &trans   &trans &trans   &trans   &trans      &kp UNDER &kp PLUS  &kp LBRC        &kp RBRC &kp PIPE &kp TILDE
-                    	     &kp LGUI &trans   &kp SPACE   &kp RET   &trans    &kp RALT
-                        >;
-                };
+    // -------------------------------------------------------------------------
+    // MACROS 
+    // -------------------------------------------------------------------------
+    macros {
+        select_line: select_line {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <30>;
+            tap-ms = <30>;
+            bindings = <&kp HOME>,
+                       <&macro_press &kp LSHIFT>,
+                       <&macro_tap &kp END>,
+                       <&macro_release &kp LSHIFT>;
         };
+
+        ctrl_shift: ctrl_shift {
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        bindings = <&macro_press &kp LCTRL &kp LSHIFT>,
+                   <&macro_pause_for_release>,
+                   <&macro_release &kp LCTRL &kp LSHIFT>;
+    };
+};
+
+    // -------------------------------------------------------------------------
+    // BEHAVIORS
+    // -------------------------------------------------------------------------
+    behaviors {
+        lt_z: layer_tap_z {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "balanced";
+            tapping-term-ms = <200>;
+            quick-tap-ms = <150>;
+            bindings = <&mo>, <&kp>;
+        };
+
+        hml: home_row_mod_left {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "balanced";
+            tapping-term-ms = <300>;
+            quick-tap-ms = <175>;
+            require-prior-idle-ms = <175>;
+            bindings = <&kp>, <&kp>;
+        };
+
+        hmr: home_row_mod_right {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "balanced";
+            tapping-term-ms = <280>;
+            quick-tap-ms = <175>;
+            require-prior-idle-ms = <150>;
+            bindings = <&kp>, <&kp>;
+        };
+    };
+
+    // -------------------------------------------------------------------------
+    // COMBOS
+    // -------------------------------------------------------------------------
+    combos {
+        compatible = "zmk,combos";
+
+        combo_esc {
+            timeout-ms = <50>;
+            key-positions = <1 2>;
+            bindings = <&kp ESC>;
+        };
+
+        // U + I -> Double Quote (")
+        combo_dqt {
+            timeout-ms = <50>;
+            key-positions = <7 8>;
+            bindings = <&kp LS(N2)>;
+        };
+
+        // J + L -> Colon (:)
+        combo_colon {
+            timeout-ms = <50>;
+            key-positions = <19 21>;
+            bindings = <&kp LS(DOT)>;
+        };
+
+        // J + Semicolon -> Semicolon (;)
+        combo_semi {
+            timeout-ms = <50>;
+            key-positions = <19 22>;
+            bindings = <&kp LS(COMMA)>;
+        };
+
+        // J + K -> Underscore (_)
+        combo_underscore {
+            timeout-ms = <50>;
+            key-positions = <19 20>;
+            bindings = <&kp LS(SLASH)>;
+        };
+
+        // H + J -> Minus (-)
+        combo_minus {
+            timeout-ms = <50>;
+            key-positions = <18 19>;
+            bindings = <&kp SLASH>;
+        };
+
+        // M + K -> Forward Slash (/)
+        combo_fslh {
+            timeout-ms = <50>;
+            key-positions = <31 20>;
+            bindings = <&kp LS(N7)>;
+        };
+
+        // D + V -> Backslash (\)
+        combo_bslh {
+            timeout-ms = <50>;
+            key-positions = <15 28>;
+            bindings = <&kp RA(MINUS)>;
+        };
+
+        // Pipe (|)
+        //combo_pipe {
+        //    timeout-ms = <50>;
+        //    key-positions = <13 25>;
+        //    bindings = <&kp RA(NON_US_BSLH)>;
+        //};
+
+        combo_ctrl_shift {
+        timeout-ms = <75>;             // Gives you a wider window if pressed together
+            key-positions = <13 25>;        // A (13) and Z (25)
+            bindings = <&ctrl_shift>;
+            slow-release;                   // Holds Ctrl+Shift until BOTH keys are released
+        };
+
+        // I + O + P -> Enter
+        combo_enter {
+            timeout-ms = <50>;
+            key-positions = <8 9 10>;
+            bindings = <&kp RET>;
+        };
+
+        // S + X -> Tilde (~)
+        combo_tilde {
+            timeout-ms = <50>;
+            key-positions = <14 26>;
+            bindings = <&kp RA(RBKT)>;
+        };
+
+        // Comma + Dot -> Caret (^) [Shift + ¨ key in SE layout]
+        combo_caret {
+            timeout-ms = <50>;
+            key-positions = <32 33>;
+            bindings = <&kp LS(RBKT)>;
+        };
+
+        // A + E -> ä / Ä
+        combo_se_a_umlaut {
+            timeout-ms = <50>;
+            key-positions = <13 3>;
+            bindings = <&kp SQT>;
+        };
+
+        // A + Ö (SEMI) -> å / Å
+        combo_se_a_ring {
+            timeout-ms = <50>;
+            key-positions = <13 22>;
+            bindings = <&kp LBKT>;
+        };
+        // V + D + R -> Less-Than (<) [NON_US_BSLH key in SE layout]
+        combo_lt {
+            timeout-ms = <50>;
+            key-positions = <28 15 4>;
+            bindings = <&kp NON_US_BSLH>;
+        };
+
+        // M + K + U -> Greater-Than (>) [Shift + NON_US_BSLH in SE layout]
+        combo_gt {
+            timeout-ms = <50>;
+            key-positions = <31 20 7>;
+            bindings = <&kp LS(NON_US_BSLH)>;
+        };
+        // V + D + R + M + K + U -> Caret (^) [Shift + ¨ key in SE layout]
+        combo_caret_6key {
+            timeout-ms = <60>;
+            key-positions = <28 15 4 31 20 7>;
+            bindings = <&kp LS(RBKT)>;
+        };
+    };
+
+    // -------------------------------------------------------------------------
+    // KEYMAP
+    // -------------------------------------------------------------------------
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {
+// -----------------------------------------------------------------------------------------
+// | XXXX |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U   |  I  |  O  |  P  | XXXX |
+// | XXXX |  A  |  S  |  D  |  F  |  G  |   |  H  |  J   |  K  |  L  |  Ö  | XXXX |
+// | XXXX |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M   |  ,  |  .  |  '  | XXXX |
+//                    | GUI | SPC | LWR |   | ENT | BSPC | ALT |
+            bindings = <
+   &trans   &kp Q         &kp W           &kp E        &kp R         &kp T                     &kp Y      &kp U          &kp I          &kp O        &kp P                  &trans
+   &trans   &kp A         &kp S           &hml LCTRL D &hml LSHIFT F &kp G                     &kp H      &kp J          &kp K          &kp L        &kp SEMI               &trans
+   &trans   &lt_z 3 Z     &hml LALT X     &kp C        &kp V         &kp B                     &kp N      &kp M          &kp COMMA      &kp DOT      &kp BSLH               &trans
+                                          &kp LGUI     &kp SPACE     &mo 1                     &kp LSHIFT &kp BSPC       &mo 2
+            >;
+        };
+
+        lower_layer {
+// -----------------------------------------------------------------------------------------
+// | XXXX |BSPC | M_UP|Enter|M_DWN| DEL |   |SEL_L|  7  |  8  |  9  |  0  | XXXX |
+// | XXXX | TAB |L_LFT| UP  |L_RGT|  (  |   |  )  |  4  |  5  |  6  |     | XXXX |
+// | XXXX | HOME| LEFT| DOWN|RIGHT| END |   |     |  1  |  2  |  3  |     | XXXX |
+//                    | BACK|     | SPC |   | ENT |     |  0  |
+            bindings = <
+   &trans   &kp BSPC      &msc MOVE_Y(10)  &kp RET      &msc MOVE_Y(-10)  &kp DEL      &select_line   &kp N7  &kp N8 &kp N9  &kp LS(N0)   &trans
+   &trans   &kp TAB       &kp LC(LEFT)     &kp UP       &kp LC(RIGHT)     &kp LS(N8)   &kp LS(N9)     &kp N4  &kp N5 &kp N6  &trans      &trans
+   &trans   &kp HOME      &kp LEFT         &kp DOWN     &kp RIGHT         &kp END      &kp LCTRL      &kp N1  &kp N2 &kp N3  &kp LS(N0)   &trans
+                                           &kp C_AC_BACK &trans           &kp SPACE    &trans        &trans  &kp N0
+            >;
+        };
+
+        raise_layer {
+// -----------------------------------------------------------------------------------------
+// | XXXX |     |     |     |     |     |   |  ?  |  &  |  *  |  (  |  +  | XXXX |
+// | XXXX |     |     |     |     |     |   |  -  |  $  |  %  |  ^  | DEL | XXXX |
+// | XXXX |     |     |     |     |     |   |  _  |  !  |  @  |  #  |  +  | XXXX |
+//                    | GUI |     | SPC |   | ENT |     | ALT |
+            bindings = <
+   &trans   &bt BT_SEL 0   &bt BT_SEL 1   &bt BT_SEL 2   &trans      &trans            &kp LS(MINUS) &kp LS(N6) &kp LS(BSLH)  &kp LS(MINUS)  &kp MINUS     &trans
+   &trans   &trans   &trans   &trans   &trans   &bt BT_CLR_ALL       &kp SLASH     &kp RA(N4) &kp LS(N5)    &kp RA(RBKT) &kp DEL       &trans
+   &trans   &trans   &trans   &trans   &trans   &bt BT_CLR           &kp LS(SLASH) &kp LS(N1) &kp RA(N2)    &kp LS(N3)   &kp MINUS     &trans
+                              &kp LGUI &trans   &kp SPACE            &kp RET       &trans     &kp RALT
+            >;
+        };
+
+        z_layer {     // Layer 3 
+// -----------------------------------------------------------------------------------------
+// | XXXX |  !  |  @  |  #  |  $  |  %  |   |  ?  |  &  |  *  |  (  |  )  | XXXX |
+// | XXXX |     |     |     |     |     |   |  -  |  $  |  %  |  ^  |  \  | XXXX |
+// | XXXX |     |     |     |     |     |   |  _  |  !  |  @  |  #  | "|" | XXXX |
+//                    | GUI |     | SPC |   | ENT |     | ALT |
+            bindings = <
+   &trans      &trans      &trans      &trans     &trans    &kp LC(T)          &kp QUESTION &kp F7    &kp F8       &kp F9   &kp F10         &trans
+   &trans      &kp LC(A)   &kp LC(S)   &trans     &kp LC(F) &kp C_AC_SEARCH    &kp MINUS    &kp F4    &kp F5       &kp F6   &kp F11         &trans
+   &trans      &kp LC(X)   &kp LC(C)   &kp LC(V)  &trans    &trans             &kp UNDER    &kp F1    &kp F2       &kp F3   &kp F12         &trans
+                              &kp LGUI &trans   &kp SPACE &kp RET              &trans    &kp RALT
+            >;
+        };
+    }; 
 };
